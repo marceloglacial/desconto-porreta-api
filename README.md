@@ -1,4 +1,4 @@
-## Desconto Porreta
+## Desconto Porreta API
 
 First, run the development server:
 
