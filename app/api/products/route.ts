@@ -1,4 +1,5 @@
 import clientPromise from "@/services/mongodb";
+import { ObjectId } from 'mongodb';
 
 const database = 'production'
 const collection = 'products'
@@ -24,6 +25,12 @@ export async function GET(_request: Request) {
 export async function POST(request: Request) {
     const client = await clientPromise;
     const body = await request.json()
-    await client.db(database).collection(collection).insertOne(body);
+
+    const result = {
+        ...body,
+        vendor: new ObjectId(body.vendor)
+    }
+
+    await client.db(database).collection(collection).insertOne(result);
     return Response.json({ message: "successfully updated the document" })
 }
