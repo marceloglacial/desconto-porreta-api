@@ -28,7 +28,7 @@ export async function POST(request: Request) {
 
     const result = {
         ...body,
-        vendor: new ObjectId(body.vendor)
+        vendor: ObjectId.createFromHexString(body.vendor)
     }
 
     await client.db(database).collection(collection).insertOne(result);
