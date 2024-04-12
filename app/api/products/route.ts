@@ -24,13 +24,20 @@ export async function GET(_request: Request) {
 
 export async function POST(request: Request) {
     const client = await clientPromise;
-    const body = await request.json()
+    try {
+        const body = await request.json()
+        const result = {
+            ...body,
+            vendor: ObjectId.createFromHexString(body.vendor)
+        }
 
-    const result = {
-        ...body,
-        vendor: ObjectId.createFromHexString(body.vendor)
+        await client.db(database).collection(collection).insertOne(result);
+        const insertedId = result.insertedId;
+        return Response.json({ message: "successfully updated the document", id: insertedId })
+
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        await client.close(); // Close the connection
     }
-
-    await client.db(database).collection(collection).insertOne(result);
-    return Response.json({ message: "successfully updated the document" })
 }
