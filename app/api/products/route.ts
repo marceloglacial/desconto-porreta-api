@@ -10,8 +10,9 @@ const agg = [
             'localField': 'vendor',
             'foreignField': '_id',
             'as': 'vendor_info'
-        }
-    }
+        },
+    },
+    { $sort: { _id: -1 } }
 ];
 
 export async function GET(_request: Request) {
