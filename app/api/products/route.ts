@@ -35,3 +35,27 @@ export async function POST(request: Request) {
     const insertedId = result.insertedId;
     return Response.json({ message: "Successfully updated the document!", id: insertedId })
 }
+
+
+export async function PUT(request: Request) {
+    const client = await clientPromise;
+    const body = await request.json();
+
+    const productId = body.id;
+    delete body.id;
+
+    const updatedProduct = {
+        $set: { ...body, vendor: ObjectId.createFromHexString(body.vendor) }
+    };
+
+    const result = await client.db(database).collection(collection).updateOne(
+        { _id: ObjectId.createFromHexString(productId) },
+        updatedProduct
+    );
+
+    if (result.modifiedCount === 0) {
+        return Response.json({ message: "Failed to update the document!" });
+    }
+
+    return Response.json({ message: "Successfully updated the document!", id: productId });
+}
