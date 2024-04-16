@@ -60,3 +60,20 @@ export async function PUT(request: Request) {
 
     return Response.json({ message: "Successfully updated the document!", id: productId });
 }
+
+export async function DELETE(request: Request) {
+    const client = await clientPromise;
+    const body = await request.json();
+
+    const productId = body.id;
+
+    const result = await client.db(database).collection(collection).deleteOne(
+        { _id: ObjectId.createFromHexString(productId) }
+    );
+
+    if (result.deletedCount === 0) {
+        return Response.json({ message: "Failed to delete the document!" });
+    }
+
+    return Response.json({ message: "Successfully deleted the document!", id: productId });
+}
