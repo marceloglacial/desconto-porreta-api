@@ -27,3 +27,17 @@ interface ApiVendor {
     slug: string;
     logo: string;
 }
+interface IResponse {
+    data: any,
+    status: StatusType,
+    message: string,
+    total: number
+}
+
+type StatusType = 'success' | 'error'
+
+type PageType = {
+    _id: string,
+    slug: string,
+    title: string
+}
