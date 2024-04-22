@@ -1,18 +1,51 @@
+import { COLLECTIONS, DATABASE_NAME } from '@/contants';
 import clientPromise from "@/services/mongodb";
 
-const database = 'production'
-const collection = 'vendors'
+const database = DATABASE_NAME
+const collection = COLLECTIONS.VENDORS
 
 export async function GET(_request: Request) {
-    const client = await clientPromise
-    const cursor = await client.db(database).collection(collection).find();
-    const vendors = (await cursor.toArray())
-    return Response.json(vendors)
+    try {
+        const client = await clientPromise
+        const cursor = await client.db(database).collection(collection).find();
+        const data = await cursor.toArray()
+        const result: IResponse = {
+            data: data,
+            total: data.length,
+            status: 'success',
+            message: 'Success'
+        }
+        return Response.json(result)
+    } catch (e) {
+        const result: IResponse = {
+            data: [],
+            total: 0,
+            status: 'error',
+            message: 'Error'
+        }
+        return Response.json(result)
+    }
 }
 
 export async function POST(request: Request) {
-    const client = await clientPromise;
-    const body = await request.json()
-    await client.db(database).collection(collection).insertOne({ body });
-    return Response.json({ message: "successfully updated the document" })
+    try {
+        const client = await clientPromise;
+        const body = await request.json()
+        const data = await client.db(database).collection(collection).insertOne(body);
+        const insertedId = data.insertedId;
+        const result: IResponse = {
+            data: insertedId,
+            status: 'success',
+            message: 'Successfully created the document!'
+        }
+        return Response.json(result)
+    } catch (e) {
+        const result: IResponse = {
+            data: [],
+            total: 0,
+            status: 'error',
+            message: 'Error to create the document'
+        }
+        return Response.json(result)
+    }
 }

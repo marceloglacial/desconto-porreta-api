@@ -1,19 +1,25 @@
-import { COLLECTIONS, DATABASE_NAME } from '@/contants';
+import { AGGREGATIONS, COLLECTIONS, DATABASE_NAME } from '@/contants';
 import clientPromise from "@/services/mongodb";
 import { ObjectId } from 'mongodb';
 
 const database = DATABASE_NAME
-const collection = COLLECTIONS.PAGES
+const collection = COLLECTIONS.PRODUCTS
 
 export async function GET(_request: Request, { params }: { params: { slug: string } }
 ) {
     try {
         const client = await clientPromise
         const slug = params.slug
-        const query = { _id: new ObjectId(slug) };
-        const data = await client.db(database).collection(collection).findOne(query);
+        const agg = [
+            {
+                '$match': { _id: new ObjectId(slug) }
+            },
+            ...AGGREGATIONS.PRODUCTS
+        ]
+
+        const data = await client.db(database).collection(collection).aggregate(agg).toArray();
         const result: IResponse = {
-            data,
+            data: data[0],
             status: 'success',
             message: 'Success'
         }
@@ -37,7 +43,7 @@ export async function DELETE(_request: Request, { params }: { params: { slug: st
         const result: IResponse = {
             data,
             status: 'success',
-            message: 'Page deleted'
+            message: 'Product deleted'
         }
         return Response.json(result)
     } catch (e) {
@@ -54,16 +60,16 @@ export async function PUT(request: Request, { params }: { params: { slug: string
     try {
         const client = await clientPromise;
         const body = await request.json();
-        const productId = params.slug;
         delete body.id;
+        const productId = params.slug;
 
-        const updatedDocument = {
-            $set: { ...body }
+        const updatedProduct = {
+            $set: { ...body, vendor: ObjectId.createFromHexString(body.vendor) }
         };
 
         const data = await client.db(database).collection(collection).updateOne(
             { _id: ObjectId.createFromHexString(productId) },
-            updatedDocument
+            updatedProduct
         );
 
         const result: IResponse = {

@@ -25,13 +25,12 @@ interface ApiVendor {
     _id: string;
     title: string;
     slug: string;
-    logo: string;
 }
 interface IResponse {
     data: any,
     status: StatusType,
     message: string,
-    total: number
+    total?: number
 }
 
 type StatusType = 'success' | 'error'

@@ -3,7 +3,7 @@ import clientPromise from "@/services/mongodb";
 import { ObjectId } from 'mongodb';
 
 const database = DATABASE_NAME
-const collection = COLLECTIONS.PAGES
+const collection = COLLECTIONS.VENDORS
 
 export async function GET(_request: Request, { params }: { params: { slug: string } }
 ) {
