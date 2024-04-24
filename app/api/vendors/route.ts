@@ -7,7 +7,7 @@ const collection = COLLECTIONS.VENDORS
 export async function GET(_request: Request) {
     try {
         const client = await clientPromise
-        const cursor = await client.db(database).collection(collection).find();
+        const cursor = await client.db(database).collection(collection).find().sort({ title: 1 });;
         const data = await cursor.toArray()
         const result: IResponse = {
             data: data,

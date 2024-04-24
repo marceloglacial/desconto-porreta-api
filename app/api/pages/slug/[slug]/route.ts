@@ -1,6 +1,5 @@
 import { COLLECTIONS, DATABASE_NAME } from '@/contants';
 import clientPromise from "@/services/mongodb";
-import { ObjectId } from 'mongodb';
 
 const database = DATABASE_NAME
 const collection = COLLECTIONS.PAGES
