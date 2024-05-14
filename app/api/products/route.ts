@@ -11,18 +11,24 @@ export async function GET(request: Request) {
         const page = parseInt(queryParams.get('page') || '1', 10);
         const limit = parseInt(queryParams.get('limit') || '10', 10);
         const skip = (page - 1) * limit;
+        const searchQuery = queryParams.get('search');
 
         const client = await clientPromise;
         const coll = await client.db(database).collection(collection);
 
-        const agg = [...AGGREGATIONS.PRODUCTS];
+        const matchStage: any = {};
+        if (searchQuery) {
+            matchStage.title = { $regex: searchQuery, $options: 'i' };
+        }
+
+        const agg = [...AGGREGATIONS.PRODUCTS, { $match: matchStage }];
         // @ts-ignore
         agg.push({ $skip: skip }, { $limit: limit });
 
         const cursor = coll.aggregate(agg);
         const data = await cursor.toArray();
 
-        const totalCount = await coll.countDocuments();
+        const totalCount = await coll.countDocuments(matchStage);
 
         const result: IResponse = {
             data: data,
@@ -45,6 +51,7 @@ export async function GET(request: Request) {
         return Response.json(result);
     }
 }
+
 
 export async function POST(request: Request) {
     try {
