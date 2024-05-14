@@ -27,10 +27,13 @@ interface ApiVendor {
     slug: string;
 }
 interface IResponse {
-    data: any,
-    status: StatusType,
-    message: string,
+    data: any
+    status: StatusType
+    message: string
     total?: number
+    page?: number
+    limit?: number
+    totalPages?: number
 }
 
 type StatusType = 'success' | 'error'

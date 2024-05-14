@@ -6,30 +6,46 @@ const database = DATABASE_NAME
 const collection = COLLECTIONS.PRODUCTS
 const agg = AGGREGATIONS.PRODUCTS
 
-export async function GET(_request: Request) {
+export async function GET(request: Request) {
     try {
-        const client = await clientPromise
+        const queryParams = new URL(request.url).searchParams;
+        const page = parseInt(queryParams.get('page') || '1', 10);
+        const limit = parseInt(queryParams.get('limit') || '10', 10);
+        const skip = (page - 1) * limit;
+
+        const client = await clientPromise;
         const coll = await client.db(database).collection(collection);
+
+        const agg = [...AGGREGATIONS.PRODUCTS];
+        // @ts-ignore
+        agg.push({ $skip: skip }, { $limit: limit });
+
         const cursor = coll.aggregate(agg);
-        const data = (await cursor.toArray())
+        const data = await cursor.toArray();
+
+        const totalCount = await coll.countDocuments();
+
         const result: IResponse = {
             data: data,
-            total: data.length,
+            total: totalCount,
+            page: page,
+            limit: limit,
+            totalPages: Math.ceil(totalCount / limit),
             status: 'success',
             message: 'Success'
-        }
-        return Response.json(result)
+        };
+        return Response.json(result);
     } catch (e) {
+        console.error(e);
         const result: IResponse = {
             data: null,
             total: 0,
             status: 'error',
             message: 'Error'
-        }
-        return Response.json(result)
+        };
+        return Response.json(result);
     }
 }
-
 
 export async function POST(request: Request) {
     try {
