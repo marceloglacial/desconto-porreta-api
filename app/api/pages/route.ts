@@ -4,26 +4,40 @@ import clientPromise from "@/services/mongodb";
 const database = DATABASE_NAME
 const collection = COLLECTIONS.PAGES
 
-export async function GET(_request: Request) {
+export async function GET(request: Request) {
     try {
-        const client = await clientPromise
-        const cursor = await client.db(database).collection(collection).find();
-        const data = await cursor.toArray()
+        const queryParams = new URL(request.url).searchParams;
+        const page = parseInt(queryParams.get('page') || '1', 10);
+        const limit = parseInt(queryParams.get('limit') || '10', 10);
+        const skip = (page - 1) * limit;
+
+        const client = await clientPromise;
+        const coll = client.db(database).collection(collection);
+
+        const cursor = coll.find().skip(skip).limit(limit);
+        const data = await cursor.toArray();
+
+        const totalCount = await coll.countDocuments();
+
         const result: IResponse = {
             data: data,
-            total: data.length,
+            total: totalCount,
+            page: page,
+            limit: limit,
+            totalPages: Math.ceil(totalCount / limit),
             status: 'success',
             message: 'Success'
-        }
-        return Response.json(result)
+        };
+        return Response.json(result);
     } catch (e) {
+        console.error(e);
         const result: IResponse = {
             data: [],
             total: 0,
             status: 'error',
             message: 'Error'
-        }
-        return Response.json(result)
+        };
+        return Response.json(result);
     }
 }
 

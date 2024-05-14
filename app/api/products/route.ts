@@ -4,7 +4,6 @@ import { ObjectId } from 'mongodb';
 
 const database = DATABASE_NAME
 const collection = COLLECTIONS.PRODUCTS
-const agg = AGGREGATIONS.PRODUCTS
 
 export async function GET(request: Request) {
     try {
