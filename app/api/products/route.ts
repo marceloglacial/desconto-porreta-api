@@ -1,4 +1,4 @@
-import { AGGREGATIONS, COLLECTIONS, DATABASE_NAME } from '@/contants';
+import { AGGREGATIONS, API_SETUP, COLLECTIONS, DATABASE_NAME } from '@/contants';
 import clientPromise from "@/services/mongodb";
 import { ObjectId } from 'mongodb';
 
@@ -8,8 +8,8 @@ const collection = COLLECTIONS.PRODUCTS
 export async function GET(request: Request) {
     try {
         const queryParams = new URL(request.url).searchParams;
-        const page = parseInt(queryParams.get('page') || '1', 10);
-        const limit = parseInt(queryParams.get('limit') || '10', 10);
+        const page = parseInt(queryParams.get('page') || API_SETUP.PAGES.toString(), 10);
+        const limit = parseInt(queryParams.get('limit') || API_SETUP.LIMIT.toString(), 10);
         const skip = (page - 1) * limit;
         const searchQuery = queryParams.get('search');
 

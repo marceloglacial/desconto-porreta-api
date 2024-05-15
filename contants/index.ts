@@ -1,4 +1,4 @@
-export const DATABASE_NAME = 'production'
+export const DATABASE_NAME = process.env.DATABASE_NAME || 'production'
 export const COLLECTIONS = {
     PAGES: 'pages',
     VENDORS: 'vendors',
@@ -16,4 +16,9 @@ export const AGGREGATIONS = {
         },
         { $sort: { _id: -1 } }
     ]
+}
+
+export const API_SETUP = {
+    LIMIT: 100,
+    PAGES: 1
 }
