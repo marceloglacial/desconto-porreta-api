@@ -20,13 +20,13 @@ export async function GET(request: Request) {
         const totalCount = await coll.countDocuments();
 
         const result: IResponse = {
-            data: data,
             total: totalCount,
             page: page,
             limit: limit,
             totalPages: Math.ceil(totalCount / limit),
             status: 'success',
-            message: 'Success'
+            message: 'Success',
+            data: data,
         };
         return Response.json(result);
     } catch (e) {
