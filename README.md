@@ -1,15 +1,40 @@
-## Desconto Porreta API
+# Desconto Porreta API
 
-First, run the development server:
+![GitHub Release](https://img.shields.io/github/v/release/marceloglacial/desconto-porreta-api)
+[![wakatime](https://wakatime.com/badge/user/cee0e641-3254-41c3-a42e-8f3adfdfbc22/project/018eabb5-e14c-457b-bd1f-ef0ea9ca8f6d.svg)](https://wakatime.com/badge/user/cee0e641-3254-41c3-a42e-8f3adfdfbc22/project/018eabb5-e14c-457b-bd1f-ef0ea9ca8f6d)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+RESTfull API for [Desconto Porreta](https://www.descontoporreta.com.br/)
+
+## Demo
+
+https://desconto-porreta-api.vercel.app/
+
+## Built with
+
+- [React](https://reactjs.org/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Shadcn/ui](https://ui.shadcn.com/)
+- [Cloudinary](https://cloudinary.com/)
+- [Vercel](https://vercel.com/)
+- [MongoDB Atlas](https://www.mongodb.com/products/platform/atlas-database)
+
+## Get Started
+
+Install all the dependencies
+
+```shell
+yarn install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Start the project
+
+```shell
+yarn dev
+```
+
+## Build
+
+```shell
+yarn build
+```
