@@ -39,7 +39,22 @@ export async function DELETE(_request: Request, { params }: { params: { slug: st
         const client = await clientPromise
         const slug = params.slug
         const query = { _id: new ObjectId(slug) };
+
+        const product = await client.db(database).collection(collection).findOne(query);
+        if (!product) {
+            const result: IResponse = {
+                data: null,
+                status: 'error',
+                message: 'Product not found'
+            };
+            return Response.json(result);
+        }
         const data = await client.db(database).collection(collection).deleteOne(query);
+
+        await client.db(database).collection('vendors').updateOne(
+            { _id: product.vendor },
+            { $inc: { 'products.total': -1 } }
+        );
         const result: IResponse = {
             data,
             status: 'success',
