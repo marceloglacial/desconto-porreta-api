@@ -57,13 +57,21 @@ export async function POST(request: Request) {
     try {
         const client = await clientPromise;
         const body = await request.json()
+        const vendorId = ObjectId.createFromHexString(body.vendor)
         const bodyWithVendor = {
             ...body,
-            vendor: ObjectId.createFromHexString(body.vendor)
+            vendor: vendorId
         }
 
         const data = await client.db(database).collection(collection).insertOne(bodyWithVendor);
         const insertedId = data.insertedId;
+
+        await client.db(database).collection('vendors').updateOne(
+            { _id: vendorId },
+            { $inc: { 'products.total': 1 } }
+        );
+
+
         const result: IResponse = {
             data: insertedId,
             status: 'success',
