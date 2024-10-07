@@ -1,25 +1,19 @@
-import { AGGREGATIONS, COLLECTIONS, DATABASE_NAME } from '@/contants';
+import { COLLECTIONS, DATABASE_NAME } from '@/contants';
 import clientPromise from "@/services/mongodb";
 import { ObjectId } from 'mongodb';
 
 const database = DATABASE_NAME
-const collection = COLLECTIONS.PRODUCTS
+const collection = COLLECTIONS.PARTNERS
 
 export async function GET(_request: Request, { params }: { params: { slug: string } }
 ) {
     try {
         const client = await clientPromise
         const slug = params.slug
-        const agg = [
-            {
-                '$match': { _id: new ObjectId(slug) }
-            },
-            ...AGGREGATIONS.VENDORS
-        ]
-
-        const data = await client.db(database).collection(collection).aggregate(agg).toArray();
+        const query = { _id: new ObjectId(slug) };
+        const data = await client.db(database).collection(collection).findOne(query);
         const result: IResponse = {
-            data: data[0],
+            data,
             status: 'success',
             message: 'Success'
         }
@@ -39,26 +33,11 @@ export async function DELETE(_request: Request, { params }: { params: { slug: st
         const client = await clientPromise
         const slug = params.slug
         const query = { _id: new ObjectId(slug) };
-
-        const product = await client.db(database).collection(collection).findOne(query);
-        if (!product) {
-            const result: IResponse = {
-                data: null,
-                status: 'error',
-                message: 'Product not found'
-            };
-            return Response.json(result);
-        }
         const data = await client.db(database).collection(collection).deleteOne(query);
-
-        await client.db(database).collection('vendors').updateOne(
-            { _id: product.vendor },
-            { $inc: { 'products.total': -1 } }
-        );
         const result: IResponse = {
             data,
             status: 'success',
-            message: 'Product deleted'
+            message: 'Page deleted'
         }
         return Response.json(result)
     } catch (e) {
@@ -75,16 +54,16 @@ export async function PUT(request: Request, { params }: { params: { slug: string
     try {
         const client = await clientPromise;
         const body = await request.json();
-        delete body.id;
         const productId = params.slug;
+        delete body.id;
 
-        const updatedProduct = {
-            $set: { ...body, vendor: ObjectId.createFromHexString(body.vendor) }
+        const updatedDocument = {
+            $set: { ...body }
         };
 
         const data = await client.db(database).collection(collection).updateOne(
             { _id: ObjectId.createFromHexString(productId) },
-            updatedProduct
+            updatedDocument
         );
 
         const result: IResponse = {

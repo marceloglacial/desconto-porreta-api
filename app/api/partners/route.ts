@@ -1,9 +1,8 @@
-import { AGGREGATIONS, API_SETUP, COLLECTIONS, DATABASE_NAME } from '@/contants';
+import { API_SETUP, COLLECTIONS, DATABASE_NAME } from '@/contants';
 import clientPromise from "@/services/mongodb";
-import { ObjectId } from 'mongodb';
 
 const database = DATABASE_NAME
-const collection = COLLECTIONS.PRODUCTS
+const collection = COLLECTIONS.PARTNERS
 
 export async function GET(request: Request) {
     try {
@@ -11,24 +10,14 @@ export async function GET(request: Request) {
         const page = parseInt(queryParams.get('page') || API_SETUP.PAGES.toString(), 10);
         const limit = parseInt(queryParams.get('limit') || API_SETUP.LIMIT.toString(), 10);
         const skip = (page - 1) * limit;
-        const searchQuery = queryParams.get('search');
 
         const client = await clientPromise;
-        const coll = await client.db(database).collection(collection);
+        const coll = client.db(database).collection(collection);
 
-        const matchStage: any = {};
-        if (searchQuery) {
-            matchStage.title = { $regex: searchQuery, $options: 'i' };
-        }
-
-        const agg = [...AGGREGATIONS.VENDORS, { $match: matchStage }];
-        // @ts-ignore
-        agg.push({ $skip: skip }, { $limit: limit });
-
-        const cursor = coll.aggregate(agg);
+        const cursor = coll.find().sort({ title: 1 }).skip(skip).limit(limit);
         const data = await cursor.toArray();
 
-        const totalCount = await coll.countDocuments(matchStage);
+        const totalCount = await coll.countDocuments();
 
         const result: IResponse = {
             total: totalCount,
@@ -43,7 +32,7 @@ export async function GET(request: Request) {
     } catch (e) {
         console.error(e);
         const result: IResponse = {
-            data: null,
+            data: [],
             total: 0,
             status: 'error',
             message: 'Error'
@@ -52,26 +41,12 @@ export async function GET(request: Request) {
     }
 }
 
-
 export async function POST(request: Request) {
     try {
         const client = await clientPromise;
         const body = await request.json()
-        const vendorId = ObjectId.createFromHexString(body.vendor)
-        const bodyWithVendor = {
-            ...body,
-            vendor: vendorId
-        }
-
-        const data = await client.db(database).collection(collection).insertOne(bodyWithVendor);
+        const data = await client.db(database).collection(collection).insertOne(body);
         const insertedId = data.insertedId;
-
-        await client.db(database).collection('vendors').updateOne(
-            { _id: vendorId },
-            { $inc: { 'products.total': 1 } }
-        );
-
-
         const result: IResponse = {
             data: insertedId,
             status: 'success',
